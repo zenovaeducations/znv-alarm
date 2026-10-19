@@ -43,7 +43,16 @@ function isDue(s,now){if(!eligible(s)||!/^\d{2}:\d{2}$/.test(timeOf(s)))return f
 function markFired(s,now){let z=s.timeZone||s.timezone,p=parts(now,z),id=s.id||s.scheduleId||s.title||timeOf(s);sessionStorage.setItem("zenova-fired:"+id+":"+p.year+"-"+p.month+"-"+p.day+"-"+p.hour+":"+p.minute,"1")}
 function nextSchedule(){let now=new Date(),best=null;for(let s of schedules().filter(eligible)){let t=timeOf(s);if(!/^\d{2}:\d{2}$/.test(t))continue;let days=daysOf(s),z=s.timeZone||s.timezone;for(let m=0;m<=8*1440;m++){let d=new Date(now.getTime()+m*60000),p=parts(d,z);if(p.hour+":"+p.minute!==t)continue;if(days&&!days.includes(p.weekday.toLowerCase()))continue;best={s,d};break}}return best}
 function renderNext(){let n=nextSchedule();$("next").textContent=n?new Intl.DateTimeFormat("en-IN",{timeZone:n.s.timeZone||n.s.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone,weekday:"short",day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:true}).format(n.d):"No alarm scheduled"}
-async function play(){try{audio.currentTime=0;await audio.play()}catch(e){toast("Browser blocked sound. Tap Answer or interact with the page to enable audio.")}}
+async function play() {
+  try {
+    audio.currentTime = 0;
+    await audio.play();
+    console.log("Zenova alarm sound playing");
+  } catch (error) {
+    console.error("Zenova audio error:", error);
+    toast("Audio error: " + error.name + " — " + error.message);
+  }
+                }
 function stopSound(){audio.pause();audio.currentTime=0}
 function ring(s){activeSchedule=s;markFired(s,new Date());screen("ring");play();if(navigator.vibrate)navigator.vibrate([500,250,500,250,800]);renderNext()}
 function answer(){stopSound();if(navigator.vibrate)navigator.vibrate(0);screen("connected");callStart=Date.now();freshUntil=Date.now()+600000;clearInterval(callInterval);clearInterval(freshInterval);callInterval=setInterval(()=>{let n=Math.floor((Date.now()-callStart)/1000);$("callTimer").textContent=String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0")},1000);freshInterval=setInterval(updateCount,1000);updateCount()}
