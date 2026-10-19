@@ -17,7 +17,16 @@ import {getFirestore,collection,onSnapshot,doc,setDoc,serverTimestamp} from 'htt
 import {getMessaging,getToken,isSupported} from 'https://www.gstatic.com/firebasejs/12.1.0/firebase-messaging.js';
 import {firebaseConfig} from '../firebase-config.js';
 const app=initializeApp(firebaseConfig),db=getFirestore(app),$=id=>document.getElementById(id);
-const VAPID_PUBLIC_KEY='REPLACE_WITH_FIREBASE_CLOUD_MESSAGING_WEB_PUSH_CERTIFICATE_KEY_PAIR_PUBLIC_KEY';
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAcqxS2SIpMyaY-jYOz0Y-t67Taa04Fy1o",
+  authDomain: "zenova-educations.firebaseapp.com",
+  projectId: "zenova-educations",
+  storageBucket: "zenova-educations.firebasestorage.app",
+  messagingSenderId: "66782392979",
+  appId: "1:66782392979:web:2e0c7e70b688401b4f5366",
+  measurementId: "G-7JL1SFKDHE"
+};
 let schedules=[],fired=new Set(),active=null,freshInterval=null,remaining=600,ringTimeout=null;
 function pill(t,ok=false){$('pill').textContent=t;$('pill').style.color=ok?'#9df2c4':'#ffe4a5'}
 function show(id){$(id).classList.remove('hidden')}function hide(id){$(id).classList.add('hidden')}
