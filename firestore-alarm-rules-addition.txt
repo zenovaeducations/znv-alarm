@@ -1,0 +1,31 @@
+// ADD these match blocks INSIDE your existing service cloud.firestore { match /databases/{database}/documents { ... } } block.
+// Do NOT replace your existing rules. Merge carefully and test before publishing.
+
+// Alarm portal schedule metadata is public because alarm/index.html has no student login.
+// Only an authenticated admin whose existing users/{uid}.role == 'admin' can change schedules.
+match /alarmSchedules/{scheduleId} {
+  allow read: if true;
+  allow create, update, delete: if request.auth != null
+    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+}
+
+// Device registration is anonymous. A browser can create/update only its own token-keyed record.
+// Read/delete is reserved for the Cloud Functions Admin SDK (which bypasses rules) or an admin.
+match /alarmDevices/{deviceToken} {
+  allow read: if request.auth != null
+    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+  allow create, update: if deviceToken.size() > 20
+    && request.resource.data.keys().hasOnly(['token','platform','enabled','updatedAt'])
+    && request.resource.data.token == deviceToken
+    && request.resource.data.platform == 'web'
+    && request.resource.data.enabled == true;
+  allow delete: if request.auth != null
+    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+}
+
+// Optional scheduler idempotency records: admin-readable, client write blocked.
+match /alarmDispatches/{dispatchId} {
+  allow read: if request.auth != null
+    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+  allow write: if false;
+}

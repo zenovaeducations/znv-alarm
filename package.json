@@ -1,0 +1,12 @@
+{
+  "name": "zenova-alarm-functions",
+  "description": "Scheduled Firebase Cloud Messaging dispatch for Zenova Educations alarms",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.1.1"
+  }
+}
